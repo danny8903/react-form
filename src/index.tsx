@@ -1,12 +1,35 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import { RxForm } from './RxForm';
 import * as serviceWorker from './serviceWorker';
+
+const sleep = (delay: number) =>
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, delay);
+  });
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <RxForm
+      onSubmit={async (value, meta) => {
+        console.log('onSubmit', value, meta);
+        await sleep(2000);
+      }}
+      success={(value, meta) => {
+        console.log('success', { value, meta });
+      }}
+      failed={(value, meta) => {
+        console.log('failed', { value, meta });
+      }}
+    >
+      <div>
+        form body
+        <button type="submit">click to test</button>
+      </div>
+    </RxForm>
   </React.StrictMode>,
   document.getElementById('root')
 );

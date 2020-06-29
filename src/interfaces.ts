@@ -1,28 +1,24 @@
 import { Observer } from 'rxjs/internal/types';
 import { Observable } from 'rxjs/internal/Observable';
 
+export { Observable };
+
 type TErrorMsg = string | undefined;
+type TError = any;
 export type TFieldValue = any;
-export type TValidator = (value: TFieldValue) => TErrorMsg;
+export type TFieldValidator = (value: TFieldValue) => TError | undefined;
+
+export type TFormSubmitCallback = (
+  values: IFormValues,
+  meta: IFormMeta
+) => void;
 
 export interface IFormContextValue {
   dispatch: (fieldAction: IFieldAction | IFormAction) => void;
   subscribeFormAction: (observer: Observer<IFieldAction | IFormAction>) => void;
   subscribe: (observer: Observer<IFormState>) => void;
-  actionState$: Observable<[IFieldAction | IFormAction, IFormState]>;
   fieldPrefix?: string;
 }
-
-// export interface IFormContextValue {
-//   dispatch: (fieldAction: IFieldAction | IFormAction) => any;
-//   subscribeFormAction: (observer: Observer<any>) => any;
-//   subscribe: (observer: Observer<any>) => any;
-//   updateFormValues: (formValues: IFormValues) => any;
-//   updateFormState: (formState: IFormState) => any;
-//   getFormValues: () => IFormValues;
-//   getFormState: () => IFormState;
-//   fieldPrefix?: string;
-// }
 
 /**
  *   +-------------------+
@@ -35,20 +31,19 @@ export interface IFields {
 }
 
 export interface IFieldMeta {
-  dirty?: boolean;
-  touched?: boolean;
-  visited?: boolean;
-  error?: TErrorMsg;
-  warning?: string | undefined;
+  dirty: boolean;
+  validate?: TFieldValidator;
+  error?: TError;
+  warning?: string;
   required?: boolean;
   destroyValueOnUnmount?: boolean;
-  defaultValue?: any;
+  defaultValue?: TFieldValue;
 }
 
 export interface IFieldAction {
   name: string;
   type: FieldActionTypes;
-  meta?: IFieldMeta; // & { destroyValueOnUnmount?: boolean };
+  meta?: IFieldMeta;
   payload?: TFieldValue;
 }
 
@@ -60,15 +55,19 @@ export enum FieldActionTypes {
   destroy = 'DESTROY',
 }
 
-// Form
+/**
+ *   +-------------------+
+ *   |       Form        |                   |
+ *   +-------------------+
+ *  */
 export interface IFormValues {
   [fieldName: string]: TFieldValue;
 }
 
 export interface IFormMeta {
   submitting: boolean;
-  changed: boolean;
-  errors: TErrorMsg[];
+  dirty: boolean;
+  errors: any[];
 }
 
 export interface IFormState {
@@ -79,7 +78,6 @@ export interface IFormState {
 
 export interface IFormAction {
   type: FormActionTypes;
-  meta?: any;
 }
 
 export enum FormActionTypes {
