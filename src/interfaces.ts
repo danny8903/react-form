@@ -1,10 +1,11 @@
 import { Observer } from 'rxjs/internal/types';
 import { Observable } from 'rxjs/internal/Observable';
+import { Subscription } from 'rxjs/internal/Subscription';
 
-export { Observable };
+export { Observable, Subscription };
 
 type TErrorMsg = string | undefined;
-type TError = any;
+export type TError = any;
 export type TFieldValue = any;
 export type TFieldValidator = (value: TFieldValue) => TError | undefined;
 
@@ -15,8 +16,11 @@ export type TFormSubmitCallback = (
 
 export interface IFormContextValue {
   dispatch: (fieldAction: IFieldAction | IFormAction) => void;
-  subscribeFormAction: (observer: Observer<IFieldAction | IFormAction>) => void;
-  subscribe: (observer: Observer<IFormState>) => void;
+  submit: (fieldAction: ISubmitAction) => void;
+  subscribeFormAction: (
+    observer: Observer<IFieldAction | IFormAction | ISubmitAction>
+  ) => Subscription;
+  subscribe: (observer: Observer<IFormState>) => Subscription;
   fieldPrefix?: string;
 }
 
@@ -31,10 +35,11 @@ export interface IFields {
 }
 
 export interface IFieldMeta {
+  name: string;
   dirty: boolean;
-  validate?: TFieldValidator;
+  // validate?: TFieldValidator;
   error?: TError;
-  warning?: string;
+  customProps?: any;
   required?: boolean;
   destroyValueOnUnmount?: boolean;
   defaultValue?: TFieldValue;
@@ -43,7 +48,7 @@ export interface IFieldMeta {
 export interface IFieldAction {
   name: string;
   type: FieldActionTypes;
-  meta?: IFieldMeta;
+  meta?: Partial<IFieldMeta>;
   payload?: TFieldValue;
 }
 
@@ -53,6 +58,12 @@ export enum FieldActionTypes {
   focus = 'FOCUS',
   blur = 'BLUR',
   destroy = 'DESTROY',
+  throwError = 'THROW_ERROR',
+}
+
+export interface IFieldState {
+  value?: TFieldValue;
+  meta: IFieldMeta;
 }
 
 /**
@@ -81,9 +92,11 @@ export interface IFormAction {
 }
 
 export enum FormActionTypes {
-  startSubmit = 'FORM_START_SUBMIT',
-  endSubmit = 'FORM_END_SUBMIT',
   reset = 'FORM_RESET',
   init = 'FORM_INIT',
   submit = 'SUBMIT',
+}
+
+export interface ISubmitAction {
+  type: 'SUBMIT';
 }
