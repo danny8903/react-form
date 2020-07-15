@@ -4,23 +4,45 @@ import { Subscription } from 'rxjs/internal/Subscription';
 
 export { Observable, Subscription };
 
-type TErrorMsg = string | undefined;
-export type TError = any;
+export type TChildrenRender<TProps> = (props: TProps) => JSX.Element | null;
+
+export type TUpdateFormValues = (
+  changes: {
+    path: string;
+    value: TFieldValue;
+  }[]
+) => void;
+
+export type TReducer = (
+  action: IFieldAction | IFormAction,
+  formState: IFormState
+) => IFormState;
+
+export type TError = Error;
 export type TFieldValue = any;
-export type TFieldValidator = (value: TFieldValue) => TError | undefined;
+export type TFieldValidator = (
+  value: TFieldValue
+) => Promise<TError | undefined>;
 
 export type TFormSubmitCallback = (
   values: IFormValues,
   meta: IFormMeta
 ) => void;
 
+export type TStore = {
+  action: IFieldAction | IFormAction;
+  state: IFormState;
+};
+
 export interface IFormContextValue {
   dispatch: (fieldAction: IFieldAction | IFormAction) => void;
-  submit: (fieldAction: ISubmitAction) => void;
-  subscribeFormAction: (
-    observer: Observer<IFieldAction | IFormAction | ISubmitAction>
-  ) => Subscription;
-  subscribe: (observer: Observer<IFormState>) => Subscription;
+  submit: () => void;
+  resetForm: () => void;
+  updateFormValues: TUpdateFormValues;
+  // subscribeActions: (
+  //   observer: Observer<[IFieldAction | IFormAction, IFormState]>
+  // ) => Subscription;
+  subscribe: (observer: Observer<TStore>) => Subscription;
   fieldPrefix?: string;
 }
 
@@ -35,14 +57,13 @@ export interface IFields {
 }
 
 export interface IFieldMeta {
-  name: string;
+  // name: string;
   dirty: boolean;
   // validate?: TFieldValidator;
   error?: TError;
-  customProps?: any;
   required?: boolean;
   destroyValueOnUnmount?: boolean;
-  defaultValue?: TFieldValue;
+  defaultValue: TFieldValue;
 }
 
 export interface IFieldAction {
@@ -59,10 +80,11 @@ export enum FieldActionTypes {
   blur = 'BLUR',
   destroy = 'DESTROY',
   throwError = 'THROW_ERROR',
+  clearError = 'CLEAR_ERROR',
 }
 
 export interface IFieldState {
-  value?: TFieldValue;
+  value: TFieldValue;
   meta: IFieldMeta;
 }
 
@@ -77,8 +99,7 @@ export interface IFormValues {
 
 export interface IFormMeta {
   submitting: boolean;
-  dirty: boolean;
-  errors: any[];
+  errors: TError[];
 }
 
 export interface IFormState {
@@ -89,14 +110,12 @@ export interface IFormState {
 
 export interface IFormAction {
   type: FormActionTypes;
+  payload?: any;
 }
 
 export enum FormActionTypes {
   reset = 'FORM_RESET',
   init = 'FORM_INIT',
-  submit = 'SUBMIT',
-}
-
-export interface ISubmitAction {
-  type: 'SUBMIT';
+  update = 'FORM_UPDATE',
+  submit = 'FORM_SUBMIT',
 }

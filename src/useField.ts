@@ -3,49 +3,55 @@ import get from 'lodash.get';
 import isEqual from 'lodash.isequal';
 import { Subject } from 'rxjs/internal/Subject';
 import {
-  distinctUntilChanged,
   map,
   tap,
   filter,
+  distinctUntilChanged,
   debounceTime,
   switchMap,
   catchError,
 } from 'rxjs/operators';
-import { asyncVerifyField } from './formHelpers';
+import { asyncVerifyField } from './verificationHelpers';
 import { FormContext } from './FormContext';
 import {
   FieldActionTypes,
+  FormActionTypes,
   IFieldMeta,
   IFormState,
   TFieldValue,
+  IFieldAction,
+  IFormAction,
+  IFieldState,
+  TFieldValidator,
+  TStore,
 } from './interfaces';
 import useDeepCompare from './useDeepCompare';
 import { defer, of } from 'rxjs';
 
 type TFieldProps = Pick<
   IFieldMeta,
-  'name' | 'defaultValue' | 'destroyValueOnUnmount' | 'required'
+  'defaultValue' | 'destroyValueOnUnmount' | 'required'
 > & {
-  customProps?: (value: TFieldValue) => any;
-  validate?: (value: TFieldValue) => any;
+  name: string;
+  validate?: TFieldValidator;
 };
 
 export const useField = (props: TFieldProps) => {
   const { dispatch, subscribe, fieldPrefix } = useContext(FormContext);
   const prefixedName = `${fieldPrefix || ''}${props.name}`;
 
-  const [fieldValue, setFieldValue] = useState(props.defaultValue);
-  const [fieldMeta, setFieldMeta] = useState<IFieldMeta>({
-    name: prefixedName,
-    dirty: false,
-    required: !!props.required,
-    defaultValue: props.defaultValue,
+  const [fieldState, setFieldState] = useState<IFieldState>({
+    value: props.defaultValue,
+    meta: {
+      required: !!props.required,
+      defaultValue: props.defaultValue,
+      dirty: false,
+    },
   });
 
   const onChange = (value: TFieldValue, otherMeta?: IFieldMeta) => {
     const meta = {
       ...otherMeta,
-      dirty: true,
     } as IFieldMeta;
 
     dispatch({
@@ -72,37 +78,55 @@ export const useField = (props: TFieldProps) => {
   );
 
   useLayoutEffect(() => {
-    const formStateSubject = new Subject<IFormState>();
+    const store$ = new Subject<TStore>();
 
-    const fieldState$ = formStateSubject.pipe(
+    const fieldState$ = store$.pipe(
+      map((store) => store.state),
+      filter(({ fields }) => Boolean(fields[prefixedName])),
       map(({ fields, values }) => ({
         meta: fields[prefixedName],
         value: get(values, prefixedName),
       })),
-      distinctUntilChanged(
-        (next, prev) =>
-          isEqual(next.meta, prev.meta) && isEqual(prev.value, next.value)
-      ),
+      distinctUntilChanged(isEqual),
       tap(({ meta, value }) => {
-        setFieldValue(value);
-        setFieldMeta(meta);
+        setFieldState({
+          value,
+          meta,
+        });
       })
     );
 
-    const verifyField$ = fieldState$.pipe(
-      filter(() => Boolean(props.validate)),
+    const verifyField$ = store$.pipe(
+      filter(({ action, state: formState }) => {
+        return (
+          ((action.type === FieldActionTypes.change &&
+            action.name === prefixedName) ||
+            action.type === FormActionTypes.update) &&
+          Boolean(formState.fields[prefixedName]) &&
+          (Boolean(props.validate) || !!formState.fields[prefixedName].required)
+        );
+      }),
       debounceTime(200),
-      switchMap(({ value }) =>
+      map(({ state }) => ({
+        meta: state.fields[prefixedName],
+        value: get(state.values, prefixedName),
+      })),
+      switchMap(({ value, meta }) =>
         defer(async () => {
-          const invalidFieldMsg = await asyncVerifyField(
+          const invalidFieldError = await asyncVerifyField(
             prefixedName,
             value,
-            !!props.required,
+            !!meta.required,
             props.validate
           );
-          if (invalidFieldMsg) {
-            throw new Error(invalidFieldMsg);
+          if (invalidFieldError) {
+            throw invalidFieldError;
           }
+
+          dispatch({
+            name: prefixedName,
+            type: FieldActionTypes.clearError,
+          });
         })
       ),
       catchError((err) => {
@@ -115,7 +139,7 @@ export const useField = (props: TFieldProps) => {
       })
     );
 
-    const formStateSubscription = subscribe(formStateSubject);
+    const storeSubscription = subscribe(store$);
     const fieldStateSubscription = fieldState$.subscribe();
     const verifyFieldSubscription = verifyField$.subscribe();
 
@@ -128,16 +152,14 @@ export const useField = (props: TFieldProps) => {
         },
       });
 
-      formStateSubscription.unsubscribe();
+      storeSubscription.unsubscribe();
       fieldStateSubscription.unsubscribe();
       verifyFieldSubscription.unsubscribe();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
-    value: fieldValue,
-    meta: fieldMeta,
-    name: prefixedName,
+    ...fieldState,
     onChange,
   };
 };

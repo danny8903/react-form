@@ -1,5 +1,10 @@
 import { createContext } from 'react';
-import { IFormContextValue, IFormState } from './interfaces';
+import {
+  IFormContextValue,
+  IFormState,
+  IFormAction,
+  FormActionTypes,
+} from './interfaces';
 
 const FormContext = createContext<IFormContextValue>({} as IFormContextValue);
 
@@ -10,9 +15,12 @@ const FORM_INIT_STATE: IFormState = {
   values: {},
   meta: {
     submitting: false,
-    dirty: false,
     errors: [],
   },
+};
+
+const FORM_INIT_ACTION: IFormAction = {
+  type: FormActionTypes.init,
 };
 
 export {
@@ -20,4 +28,5 @@ export {
   Consumer as FormConsumer,
   FormContext,
   FORM_INIT_STATE,
+  FORM_INIT_ACTION,
 };

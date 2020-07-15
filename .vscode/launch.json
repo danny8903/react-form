@@ -10,6 +10,27 @@
       "sourceMapPathOverrides": {
         "webpack:///src/*": "${webRoot}/*"
       }
+    },
+    {
+      "name": "Debug CRA Tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/react-scripts",
+      "args": [
+        "test",
+        "--runInBand",
+        "--no-cache",
+        "--watchAll=false",
+        "--env=jest-environment-jsdom-sixteen",
+        "useField.test.tsx"
+        // "--testMatch='**/__tests__/(*.)+test.ts?(x)'"
+      ],
+      "cwd": "${workspaceRoot}",
+      "protocol": "inspector",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": { "CI": "true" },
+      "disableOptimisticBPs": true
     }
   ]
 }

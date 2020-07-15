@@ -1,19 +1,21 @@
 {
-  "name": "rx-form",
-  "version": "0.1.0",
-  "private": true,
+  "name": "react-form",
+  "version": "1.0.0",
+  "author": "Danny Qu",
+  "license": "MIT",
   "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
     "@types/jest": "^24.0.0",
     "@types/lodash.get": "^4.4.6",
     "@types/lodash.isequal": "^4.5.5",
+    "@types/lodash.omit": "^4.5.6",
+    "@types/lodash.set": "^4.3.6",
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
     "lodash.get": "^4.4.2",
     "lodash.isequal": "^4.5.0",
+    "lodash.omit": "^4.5.0",
+    "lodash.set": "^4.3.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
@@ -23,7 +25,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --env=jest-environment-jsdom-sixteen --testMatch='**/__tests__/(*.)+test.ts?(x)'",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -40,5 +42,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.11.0",
+    "@testing-library/react": "^10.4.4",
+    "@testing-library/user-event": "^12.0.11",
+    "jest-environment-jsdom-sixteen": "^1.0.3"
   }
 }

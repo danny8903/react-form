@@ -34,25 +34,21 @@ export const verifyRequiredField = (
 ): TError | void => {
   // if required, check value
   if (required && (isEmpty(value) || isNil(value))) {
-    return `${name} is required`;
+    return new Error(`${name} is required`);
   }
 };
 
 export const verifyForm = (state: IFormState): IFormState | null => {
   const { meta, fields, values } = state;
-  // check if error in form meta
-  if (meta.errors.length !== 0) {
-    return state;
-  }
 
-  // update field meta error
+  // check if required field is empty and update field meta error
   const fieldPairs = Object.entries({ ...fields }).map<[string, IFieldMeta]>(
     ([key, field]) => {
       const error = verifyRequiredField(key, get(values, key), field.required);
-      if (error) {
-        field.error = error;
-      }
-      return [key, field];
+
+      const nextField = error ? { ...field, error } : field;
+
+      return [key, nextField];
     }
   );
 
