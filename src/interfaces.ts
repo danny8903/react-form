@@ -13,10 +13,16 @@ export type TUpdateFormValues = (
   }[]
 ) => void;
 
-export type TReducer = (
-  action: IFieldAction | IFormAction,
-  formState: IFormState
-) => IFormState;
+export interface IAction<T = string> {
+  type: T;
+}
+interface AnyAction extends IAction {
+  [extraProps: string]: any;
+}
+export type TReducer<A extends IAction = AnyAction, S = any> = (
+  action: A,
+  state: S
+) => S;
 
 export type TError = Error;
 export type TFieldValue = any;
@@ -39,9 +45,6 @@ export interface IFormContextValue {
   submit: () => void;
   resetForm: () => void;
   updateFormValues: TUpdateFormValues;
-  // subscribeActions: (
-  //   observer: Observer<[IFieldAction | IFormAction, IFormState]>
-  // ) => Subscription;
   subscribe: (observer: Observer<TStore>) => Subscription;
   fieldPrefix?: string;
 }

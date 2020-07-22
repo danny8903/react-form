@@ -10,10 +10,16 @@ import {
   IFieldMeta,
   IFormValues,
   TUpdateFormValues,
-  TReducer,
+  IFieldAction,
+  IFormAction,
 } from './interfaces';
 
-const reducer: TReducer = (action, formState): IFormState => {
+type TFormReducer = (
+  action: IFieldAction | IFormAction,
+  formState: IFormState
+) => IFormState;
+
+const reducer: TFormReducer = (action, formState) => {
   switch (action.type) {
     case FieldActionTypes.register: {
       const { fields, values, meta: formMeta } = formState;
@@ -175,4 +181,19 @@ const reducer: TReducer = (action, formState): IFormState => {
   }
 };
 
-export default reducer;
+const catchErrorDecorator = (reducer: TFormReducer): TFormReducer => (
+  action,
+  state
+) => {
+  let nextState;
+  try {
+    nextState = reducer(action, state);
+  } catch (err) {
+    console.error(err);
+    nextState = state;
+  }
+
+  return nextState;
+};
+
+export default catchErrorDecorator(reducer);

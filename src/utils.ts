@@ -23,30 +23,3 @@ export const isEmpty = (value: any) => {
 
   return false;
 };
-
-type TLogger = (reducer: TReducer) => TReducer;
-export const logger: TLogger = (reducer) => (action, formState) => {
-  let nextFormState;
-  let error;
-  try {
-    nextFormState = reducer(action, formState);
-  } catch (err) {
-    nextFormState = formState;
-    error = err;
-  }
-
-  if (process.env.NODE_ENV === 'development') {
-    if (error) {
-      console.error(error);
-    } else {
-      console.groupCollapsed(
-        `${action.type} ${new Date().toLocaleTimeString()}`
-      );
-      console.log('prevFormState', formState);
-      console.log(`%cAction ${JSON.stringify(action)}`, 'color: red');
-      console.log('nextState', nextFormState);
-      console.groupEnd();
-    }
-  }
-  return nextFormState;
-};

@@ -1,30 +1,24 @@
 import React, { useMemo, useEffect } from 'react';
-import { BehaviorSubject, Subject, merge, of, partition } from 'rxjs';
-import {
-  withLatestFrom,
-  exhaustMap,
-  catchError,
-  tap,
-  map,
-  mapTo,
-} from 'rxjs/operators';
+import { Subject, merge, of } from 'rxjs';
+import { exhaustMap, catchError, tap, mapTo } from 'rxjs/operators';
 
-import { FormProvider, FORM_INIT_STATE, FORM_INIT_ACTION } from './FormContext';
+import { FormProvider, FORM_INIT_STATE } from './FormContext';
 
 import {
   FormActionTypes,
   FieldActionTypes,
-  IFieldAction,
   IFormAction,
+  IFieldAction,
   IFormContextValue,
   TFormSubmitCallback,
   TUpdateFormValues,
-  TStore,
+  IFormState,
 } from './interfaces';
 
 import reducer from './reducer';
-import { asyncTap, logger } from './utils';
+import { asyncTap } from './utils';
 import { verifyForm } from './verificationHelpers';
+import { createStore } from './store';
 
 import './Form.css';
 
@@ -43,12 +37,15 @@ interface IMemoValue extends IFormContextValue {
 
 export function Form(props: IRxFormProps) {
   const { cleanup, ...formCtxValue } = useMemo<IMemoValue>(() => {
-    const storeSubject = new BehaviorSubject<TStore>({
-      action: FORM_INIT_ACTION,
-      state: FORM_INIT_STATE,
-    });
+    const submitSubject = new Subject<IFormAction>();
 
-    const actionSubject = new Subject<IFieldAction | IFormAction>();
+    const store = createStore(FORM_INIT_STATE, reducer);
+
+    const submit = (): void => {
+      submitSubject.next({
+        type: FormActionTypes.submit,
+      });
+    };
 
     const dispatch = (action: IFieldAction | IFormAction): void => {
       if (
@@ -61,33 +58,15 @@ export function Form(props: IRxFormProps) {
       ) {
         throw new Error(`Invalid action: ${action.type} is invalid`);
       }
-      actionSubject.next(action);
+      store.dispatch(action);
     };
 
-    const submit = (): void => {
-      dispatch({
-        type: FormActionTypes.submit,
-      });
-    };
-
-    const prevStore$ = actionSubject.pipe(
-      withLatestFrom(storeSubject),
-      map(([action, { state }]) => ({ action, state }))
-    );
-
-    const [submit$, rest$] = partition(prevStore$, ({ action }) => {
-      return action.type === FormActionTypes.submit;
-    });
-
-    const submitHandler$ = submit$.pipe(
-      exhaustMap(({ action, state: formState }) => {
+    const submitHandler$ = submitSubject.pipe(
+      exhaustMap(() => {
+        const formState = store.getState();
         const formStateWithError = verifyForm(formState);
         if (formStateWithError) {
-          const enhanceAction: IFormAction = {
-            ...(action as IFormAction),
-            payload: formStateWithError,
-          };
-          return of<TStore>({ action: enhanceAction, state: formState }).pipe(
+          return of(formStateWithError).pipe(
             tap(() => {
               props.failed &&
                 props.failed(
@@ -98,14 +77,14 @@ export function Form(props: IRxFormProps) {
           );
         }
 
-        const loadingState = {
+        const loadingState: IFormState = {
           ...formState,
           meta: {
             ...formState.meta,
             submitting: true,
           },
         };
-        const finalState = {
+        const finalState: IFormState = {
           ...formState,
           meta: {
             ...formState.meta,
@@ -113,17 +92,9 @@ export function Form(props: IRxFormProps) {
           },
         };
 
-        const submittingStore = of<TStore>({
-          action: {
-            ...(action as IFormAction),
-            payload: loadingState,
-          },
-          state: formState,
-        });
-
         return merge(
-          submittingStore,
-          submittingStore.pipe(
+          of(loadingState),
+          of(loadingState).pipe(
             asyncTap(async () => {
               props.beforeSubmit &&
                 (await props.beforeSubmit(
@@ -132,33 +103,21 @@ export function Form(props: IRxFormProps) {
                 ));
               await props.onSubmit(loadingState.values, loadingState.meta);
             }),
-            mapTo<TStore, TStore>({
-              action: {
-                ...(action as IFormAction),
-                payload: finalState,
-              },
-              state: formState,
-            }),
+            mapTo(finalState),
             tap(() => {
               props.success &&
                 props.success(finalState.values, finalState.meta);
             }),
             catchError((err) =>
-              of<TStore>({
-                action: {
-                  ...(action as IFormAction),
-                  payload: {
-                    ...formState,
-                    meta: {
-                      ...formState.meta,
-                      submitting: false,
-                      errors: [err],
-                    },
-                  },
+              of<IFormState>({
+                ...formState,
+                meta: {
+                  ...formState.meta,
+                  submitting: false,
+                  errors: [err],
                 },
-                state: formState,
               }).pipe(
-                tap(({ state }) => {
+                tap((state) => {
                   props.failed && props.failed(state.values, state.meta);
                 })
               )
@@ -168,39 +127,28 @@ export function Form(props: IRxFormProps) {
       })
     );
 
-    const store$ = merge(submitHandler$, rest$).pipe(
-      map(({ action, state }) => {
-        const nextState = logger(reducer)(action, state);
-        return { action, state: nextState };
-      })
-    );
-
-    const storeSubscription = store$.subscribe(storeSubject);
-
-    const cleanup = () => {
-      storeSubscription.unsubscribe();
-    };
+    store.observe(submitSubject, submitHandler$);
 
     const resetForm = (): void => {
-      dispatch({
+      store.dispatch({
         type: FormActionTypes.reset,
       });
     };
 
     const updateFormValues: TUpdateFormValues = (changes) => {
-      dispatch({
+      store.dispatch({
         type: FormActionTypes.update,
         payload: changes,
       });
     };
 
     return {
-      subscribe: (observer) => storeSubject.subscribe(observer),
+      subscribe: store.subscribe,
       dispatch,
       submit,
       resetForm,
       updateFormValues,
-      cleanup,
+      cleanup: store.cleanup,
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

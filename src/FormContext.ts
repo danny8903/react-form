@@ -1,10 +1,5 @@
 import { createContext } from 'react';
-import {
-  IFormContextValue,
-  IFormState,
-  IFormAction,
-  FormActionTypes,
-} from './interfaces';
+import { IFormContextValue, IFormState } from './interfaces';
 
 const FormContext = createContext<IFormContextValue>({} as IFormContextValue);
 
@@ -19,14 +14,9 @@ const FORM_INIT_STATE: IFormState = {
   },
 };
 
-const FORM_INIT_ACTION: IFormAction = {
-  type: FormActionTypes.init,
-};
-
 export {
   Provider as FormProvider,
   Consumer as FormConsumer,
   FormContext,
   FORM_INIT_STATE,
-  FORM_INIT_ACTION,
 };
