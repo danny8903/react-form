@@ -6,13 +6,6 @@ export { Observable, Subscription };
 
 export type TChildrenRender<TProps> = (props: TProps) => JSX.Element | null;
 
-export type TUpdateFormValues = (
-  changes: {
-    path: string;
-    value: TFieldValue;
-  }[]
-) => void;
-
 export interface IAction<T = string> {
   type: T;
 }
@@ -36,12 +29,12 @@ export type TFormSubmitCallback = (
 ) => void;
 
 export type TStore = {
-  action: IFieldAction | IFormAction;
+  action: TFieldAction | TFormAction;
   state: IFormState;
 };
 
 export interface IFormContextValue {
-  dispatch: (fieldAction: IFieldAction | IFormAction) => void;
+  dispatch: (fieldAction: TFieldAction | TFormAction) => void;
   submit: () => void;
   resetForm: () => void;
   updateFormValues: TUpdateFormValues;
@@ -60,36 +53,68 @@ export interface IFields {
 }
 
 export interface IFieldMeta {
-  // name: string;
   dirty: boolean;
-  // validate?: TFieldValidator;
   error?: TError;
   required?: boolean;
   destroyValueOnUnmount?: boolean;
   defaultValue: TFieldValue;
 }
 
-export interface IFieldAction {
-  name: string;
-  type: FieldActionTypes;
-  meta?: Partial<IFieldMeta>;
-  payload?: TFieldValue;
+export interface IFieldState {
+  value: TFieldValue;
+  meta: IFieldMeta;
 }
 
 export enum FieldActionTypes {
   register = 'REGISTER',
   change = 'CHANGE',
-  focus = 'FOCUS',
-  blur = 'BLUR',
   destroy = 'DESTROY',
   throwError = 'THROW_ERROR',
   clearError = 'CLEAR_ERROR',
 }
 
-export interface IFieldState {
-  value: TFieldValue;
-  meta: IFieldMeta;
+interface FieldRegisterAction {
+  name: string;
+  type: typeof FieldActionTypes.register;
+  meta: {
+    required: boolean;
+    defaultValue: TFieldValue;
+  };
+  payload: TFieldValue;
 }
+
+export interface FieldChangeAction {
+  name: string;
+  type: typeof FieldActionTypes.change;
+  meta: IFieldMeta;
+  payload: TFieldValue;
+}
+
+interface FieldDestroyAction {
+  name: string;
+  type: typeof FieldActionTypes.destroy;
+  meta: {
+    destroyValueOnUnmount: boolean;
+  };
+}
+
+interface FieldThrowErrorAction {
+  name: string;
+  type: typeof FieldActionTypes.throwError;
+  payload: Error;
+}
+
+interface FieldClearErrorAction {
+  name: string;
+  type: typeof FieldActionTypes.clearError;
+}
+
+export type TFieldAction =
+  | FieldClearErrorAction
+  | FieldThrowErrorAction
+  | FieldDestroyAction
+  | FieldChangeAction
+  | FieldRegisterAction;
 
 /**
  *   +-------------------+
@@ -111,14 +136,29 @@ export interface IFormState {
   meta: IFormMeta;
 }
 
-export interface IFormAction {
-  type: FormActionTypes;
-  payload?: any;
-}
-
 export enum FormActionTypes {
   reset = 'FORM_RESET',
-  init = 'FORM_INIT',
   update = 'FORM_UPDATE',
   submit = 'FORM_SUBMIT',
 }
+
+interface FormResetAction {
+  type: typeof FormActionTypes.reset;
+}
+
+interface FormSubmitAction {
+  type: typeof FormActionTypes.submit;
+}
+
+type Change = {
+  path: string;
+  value: TFieldValue;
+};
+interface FormUpdateAction {
+  type: typeof FormActionTypes.update;
+  payload: Change[];
+}
+
+export type TFormAction = FormResetAction | FormUpdateAction | FormSubmitAction;
+
+export type TUpdateFormValues = (changes: Change[]) => void;

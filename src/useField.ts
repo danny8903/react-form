@@ -98,7 +98,9 @@ export const useField = (props: TFieldProps) => {
         return (
           ((action.type === FieldActionTypes.change &&
             action.name === prefixedName) ||
-            action.type === FormActionTypes.update) &&
+            (action.type === FormActionTypes.update &&
+              Array.isArray(action.payload) &&
+              action.payload.some((c) => c.path === prefixedName))) &&
           Boolean(formState.fields[prefixedName]) &&
           (Boolean(props.validate) || !!formState.fields[prefixedName].required)
         );
@@ -145,7 +147,7 @@ export const useField = (props: TFieldProps) => {
         name: prefixedName,
         type: FieldActionTypes.destroy,
         meta: {
-          destroyValueOnUnmount: props.destroyValueOnUnmount,
+          destroyValueOnUnmount: !!props.destroyValueOnUnmount,
         },
       });
 

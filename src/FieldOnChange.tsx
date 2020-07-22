@@ -6,14 +6,15 @@ import isEqual from 'lodash.isequal';
 import { FormContext } from './FormContext';
 import {
   TStore,
-  IFieldAction,
+  TFieldAction,
   FieldActionTypes,
   IFormValues,
   TUpdateFormValues,
+  FieldChangeAction,
 } from './interfaces';
 
 interface IFormValuesInnerProps {
-  action: IFieldAction;
+  action: TFieldAction;
   formValues: IFormValues;
   updateFormValues: TUpdateFormValues;
 }
@@ -32,9 +33,9 @@ export const FieldOnChange: React.FC<Props> = (props) => {
         filter(({ action }) => {
           return action.type === FieldActionTypes.change;
         }),
-        map<TStore, [IFieldAction, IFormValues]>(({ action, state }) => {
+        map<TStore, [FieldChangeAction, IFormValues]>(({ action, state }) => {
           return [
-            action as IFieldAction,
+            action as FieldChangeAction,
             {
               ...state.values,
             },

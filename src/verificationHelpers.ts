@@ -54,7 +54,7 @@ export const verifyForm = (state: IFormState): IFormState | null => {
 
   const errors = fieldPairs
     .map(([, field]) => field.error)
-    .filter((err) => !!err);
+    .filter((err) => !!err) as Error[];
 
   if (errors.length === 0) {
     return null;

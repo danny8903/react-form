@@ -2,7 +2,7 @@ import reducer from '../reducer';
 
 import {
   IFieldAction,
-  IFormAction,
+  TFormAction,
   FieldActionTypes,
   FormActionTypes,
   IFormState,
@@ -202,7 +202,7 @@ test('field throwError action should update meta error', () => {
 });
 
 test('form reset action should reset to default value', () => {
-  const action: IFormAction = {
+  const action: TFormAction = {
     type: FormActionTypes.reset,
   };
 

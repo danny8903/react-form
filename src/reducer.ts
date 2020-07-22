@@ -1,21 +1,18 @@
 import omit from 'lodash.omit';
 import set from 'lodash.set';
 
-import { FORM_INIT_STATE } from './FormContext';
-
 import {
   FieldActionTypes,
   FormActionTypes,
   IFormState,
   IFieldMeta,
   IFormValues,
-  TUpdateFormValues,
-  IFieldAction,
-  IFormAction,
+  TFieldAction,
+  TFormAction,
 } from './interfaces';
 
 type TFormReducer = (
-  action: IFieldAction | IFormAction,
+  action: TFieldAction | TFormAction,
   formState: IFormState
 ) => IFormState;
 
@@ -57,7 +54,7 @@ const reducer: TFormReducer = (action, formState) => {
       };
     }
     case FieldActionTypes.destroy: {
-      const { meta = {}, name } = action;
+      const { meta, name } = action;
       if (meta.destroyValueOnUnmount) {
         return {
           ...formState,
@@ -107,7 +104,7 @@ const reducer: TFormReducer = (action, formState) => {
     }
     case FormActionTypes.update: {
       const { fields, values } = formState;
-      const changes: Parameters<TUpdateFormValues>[0] = action.payload;
+      const changes = action.payload;
       if (!Array.isArray(changes)) {
         throw new Error(
           `updateFormValues should receive an array but get: ${JSON.stringify(
@@ -168,13 +165,6 @@ const reducer: TFormReducer = (action, formState) => {
         fields: resetFields,
         meta: resetMeta,
       };
-    }
-    case FormActionTypes.submit: {
-      const { payload } = action;
-      return payload;
-    }
-    case FormActionTypes.init: {
-      return { ...FORM_INIT_STATE };
     }
     default:
       return formState;

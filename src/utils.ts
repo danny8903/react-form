@@ -1,8 +1,6 @@
 import { pipe, defer } from 'rxjs';
 import { delayWhen } from 'rxjs/operators';
 
-import { TReducer } from './interfaces';
-
 export const asyncTap = <T>(fn: (x: T) => Promise<void>) =>
   pipe(
     delayWhen((params: T) =>

@@ -7,8 +7,8 @@ import { FormProvider, FORM_INIT_STATE } from './FormContext';
 import {
   FormActionTypes,
   FieldActionTypes,
-  IFormAction,
-  IFieldAction,
+  TFormAction,
+  TFieldAction,
   IFormContextValue,
   TFormSubmitCallback,
   TUpdateFormValues,
@@ -37,7 +37,7 @@ interface IMemoValue extends IFormContextValue {
 
 export function Form(props: IRxFormProps) {
   const { cleanup, ...formCtxValue } = useMemo<IMemoValue>(() => {
-    const submitSubject = new Subject<IFormAction>();
+    const submitSubject = new Subject<TFormAction>();
 
     const store = createStore(FORM_INIT_STATE, reducer);
 
@@ -47,7 +47,7 @@ export function Form(props: IRxFormProps) {
       });
     };
 
-    const dispatch = (action: IFieldAction | IFormAction): void => {
+    const dispatch = (action: TFieldAction | TFormAction): void => {
       if (
         !Object.values(FormActionTypes).includes(
           action.type as FormActionTypes
