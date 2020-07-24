@@ -53,7 +53,6 @@ test('verifyForm should should update meta error', async () => {
     },
     meta: {
       submitting: false,
-      dirty: false,
       errors: [],
     },
   };

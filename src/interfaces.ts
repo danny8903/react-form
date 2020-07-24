@@ -86,7 +86,7 @@ interface FieldRegisterAction {
 export interface FieldChangeAction {
   name: string;
   type: typeof FieldActionTypes.change;
-  meta: IFieldMeta;
+  meta?: IFieldMeta;
   payload: TFieldValue;
 }
 

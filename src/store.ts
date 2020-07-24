@@ -30,11 +30,22 @@ export const createStore = <T, A extends IAction>(
         tap(([pre, next]) => {
           const action = actionCache.getValue();
           console.groupCollapsed(
-            `${action.type} ${new Date().toLocaleTimeString()}`
+            '%c action',
+            'color: #9E9E9E;',
+            `${action.type}`,
+            `@ ${new Date().toLocaleTimeString()}`
           );
-          console.log('prevFormState', pre);
-          console.log(`%cAction ${JSON.stringify(action)}`, 'color: red');
-          console.log('nextState', next);
+          console.log(
+            '%c prev state',
+            'color: #9E9E9E; font-weight: bold',
+            pre
+          );
+          console.log('%c action', 'color: #03A9F4; font-weight: bold', action);
+          console.log(
+            '%c next state',
+            'color: #4CAF50; font-weight: bold',
+            next
+          );
           console.groupEnd();
         })
       )

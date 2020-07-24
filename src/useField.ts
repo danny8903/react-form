@@ -122,10 +122,12 @@ export const useField = (props: TFieldProps) => {
             throw invalidFieldError;
           }
 
-          dispatch({
-            name: prefixedName,
-            type: FieldActionTypes.clearError,
-          });
+          if (meta.error) {
+            dispatch({
+              name: prefixedName,
+              type: FieldActionTypes.clearError,
+            });
+          }
         })
       ),
       catchError((err) => {

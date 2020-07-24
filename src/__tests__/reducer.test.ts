@@ -1,7 +1,7 @@
 import reducer from '../reducer';
 
 import {
-  IFieldAction,
+  TFieldAction,
   TFormAction,
   FieldActionTypes,
   FormActionTypes,
@@ -10,7 +10,7 @@ import {
 import { FORM_INIT_STATE } from '../FormContext';
 
 test('field register action should update properly', () => {
-  const action: IFieldAction = {
+  const action: TFieldAction = {
     type: FieldActionTypes.register,
     name: 'firstName',
     payload: 'Danny',
@@ -41,7 +41,7 @@ test('field register action should update properly', () => {
 });
 
 test('field onChange action should update properly', () => {
-  const onChangeAction: IFieldAction = {
+  const onChangeAction: TFieldAction = {
     type: FieldActionTypes.change,
     name: 'firstName',
     payload: '123',
@@ -83,7 +83,7 @@ test('field onChange action should update properly', () => {
 });
 
 test('field destroy action should remove form value, if destroyValueOnUnmount', () => {
-  const action: IFieldAction = {
+  const action: TFieldAction = {
     type: FieldActionTypes.destroy,
     name: 'firstName',
     meta: {
@@ -120,7 +120,7 @@ test('field destroy action should remove form value, if destroyValueOnUnmount', 
 });
 
 test('field destroy action should keep form value, if destroyValueOnUnmount is false', () => {
-  const action: IFieldAction = {
+  const action: TFieldAction = {
     type: FieldActionTypes.destroy,
     name: 'firstName',
     meta: {
@@ -159,7 +159,7 @@ test('field destroy action should keep form value, if destroyValueOnUnmount is f
 });
 
 test('field throwError action should update meta error', () => {
-  const action: IFieldAction = {
+  const action: TFieldAction = {
     type: FieldActionTypes.throwError,
     name: 'firstName',
     payload: new Error('invalid name'),

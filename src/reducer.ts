@@ -36,7 +36,7 @@ const reducer: TFormReducer = (action, formState) => {
     }
     case FieldActionTypes.change: {
       const { fields, values, meta: formMeta } = formState;
-      const { payload, meta = {}, name } = action;
+      const { payload, meta, name } = action;
 
       const nextFeilds = {
         ...fields,
