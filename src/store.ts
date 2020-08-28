@@ -34,7 +34,6 @@ export const createStore = <T, A extends IAction>(
   const finalState$ = postUpdate ? postUpdate(stateSubject) : stateSubject;
 
   const enhanceStateSubscription = finalState$.subscribe(finalStateSubject);
-
   if (process.env.NODE_ENV === 'development') {
     const logSubscription = finalStateSubject
       .pipe(

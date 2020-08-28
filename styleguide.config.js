@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 
 module.exports = {
-  title: 'React Form Example',
+  title: 'React Form Docs',
   pagePerSection: true,
   sections: [
     {
@@ -19,7 +19,7 @@ module.exports = {
     },
   ],
   ribbon: {
-    url: 'https://github.com/danny8903',
+    url: 'https://github.com/danny8903/react-form',
     text: 'Fork me on GitHub',
   },
   components: 'examples/**/*.{js,jsx}',
@@ -69,6 +69,7 @@ module.exports = {
     }
     return props;
   },
+  require: [path.resolve(__dirname, 'styleguideSetup.js')],
   webpackConfig: {
     devtool: 'source-map',
     module: {

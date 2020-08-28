@@ -23,12 +23,12 @@
     "typescript": "~3.7.2"
   },
   "scripts": {
-    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jest-environment-jsdom-sixteen --testMatch='**/__tests__/(*.)+test.ts?(x)'",
     "eject": "react-scripts eject",
     "styleguide": "styleguidist server",
-    "styleguide:build": "styleguidist build"
+    "styleguide:build": "styleguidist build",
+    "styleguide:deploy": "surge --project ./styleguide --domain danny-ui-form.surge.sh"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -54,6 +54,7 @@
     "@testing-library/react": "^10.4.4",
     "@testing-library/user-event": "^12.0.11",
     "babel-loader": "^8.1.0",
+    "babel-polyfill": "^6.26.0",
     "css-loader": "^3.6.0",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "react-styleguidist": "^11.0.8",
