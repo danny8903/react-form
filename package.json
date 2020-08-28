@@ -1,6 +1,6 @@
 {
-  "name": "react-form",
-  "version": "1.0.0",
+  "name": "@danny-ui/react-form",
+  "version": "0.1.0",
   "author": "Danny Qu",
   "license": "MIT",
   "dependencies": {
