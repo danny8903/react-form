@@ -3,19 +3,53 @@ const fs = require('fs');
 
 module.exports = {
   title: 'React Form Example',
+  pagePerSection: true,
   sections: [
     {
-      name: 'Sign Up Form',
+      name: 'Introduction',
+      content: 'examples/Introduction.md',
+    },
+    {
+      name: 'SignUpForm',
       content: 'examples/SignUpForm.md',
     },
+    {
+      name: 'FormValuesExample',
+      content: 'examples/FormValuesExample.md',
+    },
   ],
+  ribbon: {
+    url: 'https://github.com/danny8903',
+    text: 'Fork me on GitHub',
+  },
   components: 'examples/**/*.{js,jsx}',
   compilerConfig: {
     transforms: { moduleImport: false },
   },
+  styleguideComponents: {
+    StyleGuideRenderer: path.join(
+      __dirname,
+      'styleguide/components/StyleGuide'
+    ),
+    SectionRenderer: path.join(
+      __dirname,
+      'styleguide/components/SectionRenderer'
+    ),
+  },
+  styles: function (theme) {
+    return {
+      TableCell: {
+        td: {
+          // we can now change the color used in the logo item to use the theme's `link` color
+          borderBottom: '1px solid rgb(232, 232, 232)',
+          padding: '16px 32px 16px 0',
+        },
+      },
+    };
+  },
   skipComponentsWithoutExample: true,
   moduleAliases: {
-    '@danny-qu/form': path.resolve(__dirname, 'src'),
+    '@danny-ui/react-form': path.resolve(__dirname, 'src'),
   },
   updateExample(props, exampleFilePath) {
     const { settings, lang } = props;

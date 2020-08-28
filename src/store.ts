@@ -1,5 +1,11 @@
 import { Subject, BehaviorSubject } from 'rxjs';
-import { withLatestFrom, map, tap, pairwise } from 'rxjs/operators';
+import {
+  withLatestFrom,
+  map,
+  tap,
+  pairwise,
+  shareReplay,
+} from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 import { Observer } from 'rxjs/internal/types';
 
@@ -7,10 +13,12 @@ import { TReducer, IAction } from './interfaces';
 
 export const createStore = <T, A extends IAction>(
   initState: T,
-  reducer: TReducer<A, T>
+  reducer: TReducer<A, T>,
+  postUpdate?: (state: Observable<T>) => Observable<T>
 ) => {
   const actionSubject = new Subject<A>();
   const stateSubject = new BehaviorSubject<T>(initState);
+  const finalStateSubject = new BehaviorSubject<T>(initState);
   const actionCache = new BehaviorSubject({
     type: '@@INIT',
   } as A);
@@ -23,8 +31,12 @@ export const createStore = <T, A extends IAction>(
   const actionSubscription = actionSubject.subscribe(actionCache);
   const stateSubscription = state$.subscribe(stateSubject);
 
+  const finalState$ = postUpdate ? postUpdate(stateSubject) : stateSubject;
+
+  const enhanceStateSubscription = finalState$.subscribe(finalStateSubject);
+
   if (process.env.NODE_ENV === 'development') {
-    const logSubscription = stateSubject
+    const logSubscription = finalStateSubject
       .pipe(
         pairwise(),
         tap(([pre, next]) => {
@@ -56,9 +68,17 @@ export const createStore = <T, A extends IAction>(
   const cleanup = () => {
     stateSubscription.unsubscribe();
     actionSubscription.unsubscribe();
+    enhanceStateSubscription.unsubscribe();
   };
 
   const dispatch = (action: A) => actionSubject.next(action);
+  const store$ = finalStateSubject.pipe(
+    map((state) => {
+      const action = actionCache.getValue();
+      return { action, state };
+    }),
+    shareReplay(1)
+  );
 
   return {
     dispatch,
@@ -69,17 +89,9 @@ export const createStore = <T, A extends IAction>(
       stateSubscription.add(sub);
       actionSubscription.add(actionSub);
     },
-    getState: () => stateSubject.getValue(),
-    subscribe: (observer: Observer<{ action: A; state: T }>) => {
-      return stateSubject
-        .pipe(
-          map((state) => {
-            const action = actionCache.getValue();
-            return { action, state };
-          })
-        )
-        .subscribe(observer);
-    },
+    getState: () => finalStateSubject.getValue(),
+    subscribe: (observer: Observer<{ action: A; state: T }>) =>
+      store$.subscribe(observer),
     cleanup,
   };
 };

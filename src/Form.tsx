@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect } from 'react';
 import { Subject, merge, of } from 'rxjs';
-import { exhaustMap, catchError, tap, mapTo } from 'rxjs/operators';
+import { exhaustMap, catchError, tap, mapTo, map } from 'rxjs/operators';
+import { Observable } from 'rxjs/internal/Observable';
 
 import { FormProvider, FORM_INIT_STATE } from './FormContext';
 
@@ -10,9 +11,10 @@ import {
   TFormAction,
   TFieldAction,
   IFormContextValue,
-  TFormSubmitCallback,
   TUpdateFormValues,
   IFormState,
+  IFormValues,
+  IFormMeta,
 } from './interfaces';
 
 import reducer from './reducer';
@@ -24,10 +26,15 @@ import './Form.css';
 
 interface IRxFormProps {
   children: React.ReactNode;
-  onSubmit: TFormSubmitCallback;
-  success?: TFormSubmitCallback;
-  failed?: TFormSubmitCallback;
-  beforeSubmit?: TFormSubmitCallback;
+  onSubmit: (values: IFormValues, meta: IFormMeta) => Promise<any>;
+  extendFormMeta?: (
+    state: IFormState
+  ) => {
+    [extraProps: string]: any;
+  };
+  success?: (submitReturn: any, value: IFormValues) => Promise<void>;
+  failed?: (errors: Error[], value: IFormValues) => void;
+  beforeSubmit?: (values: IFormValues, meta: IFormMeta) => Promise<void>;
   className?: string;
 }
 
@@ -39,7 +46,46 @@ export function Form(props: IRxFormProps) {
   const { cleanup, ...formCtxValue } = useMemo<IMemoValue>(() => {
     const submitSubject = new Subject<TFormAction>();
 
-    const store = createStore(FORM_INIT_STATE, reducer);
+    const postUpdate = (state$: Observable<IFormState>) =>
+      state$.pipe(
+        map((state) => {
+          const { fields, meta } = state;
+
+          const fieldMetaList = Object.entries(fields).map(
+            (fieldPair) => fieldPair[1]
+          );
+
+          const dirty = fieldMetaList.some((meta) => meta.dirty);
+          const errors = fieldMetaList
+            .filter((meta) => meta.error)
+            .map((meta) => meta.error as Error);
+
+          const tempState: IFormState = {
+            ...state,
+            meta: {
+              ...meta,
+              dirty,
+              errors,
+            },
+          };
+
+          const extraMeta = props.extendFormMeta
+            ? props.extendFormMeta(tempState)
+            : undefined;
+
+          return {
+            ...state,
+            meta: {
+              ...meta,
+              ...extraMeta,
+              dirty,
+              errors,
+            },
+          };
+        })
+      );
+
+    const store = createStore(FORM_INIT_STATE, reducer, postUpdate);
 
     const submit = (): void => {
       submitSubject.next({
@@ -70,8 +116,8 @@ export function Form(props: IRxFormProps) {
             tap(() => {
               props.failed &&
                 props.failed(
-                  formStateWithError.values,
-                  formStateWithError.meta
+                  formStateWithError.meta.errors,
+                  formStateWithError.values
                 );
             })
           );
@@ -101,13 +147,13 @@ export function Form(props: IRxFormProps) {
                   loadingState.values,
                   loadingState.meta
                 ));
-              await props.onSubmit(loadingState.values, loadingState.meta);
+              const returnValue = await props.onSubmit(
+                loadingState.values,
+                loadingState.meta
+              );
+              props.success && props.success(returnValue, finalState.values);
             }),
             mapTo(finalState),
-            tap(() => {
-              props.success &&
-                props.success(finalState.values, finalState.meta);
-            }),
             catchError((err) =>
               of<IFormState>({
                 ...formState,
@@ -118,7 +164,7 @@ export function Form(props: IRxFormProps) {
                 },
               }).pipe(
                 tap((state) => {
-                  props.failed && props.failed(state.values, state.meta);
+                  props.failed && props.failed(state.meta.errors, state.values);
                 })
               )
             )

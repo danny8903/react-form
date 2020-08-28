@@ -23,11 +23,6 @@ export type TFieldValidator = (
   value: TFieldValue
 ) => Promise<TError | undefined>;
 
-export type TFormSubmitCallback = (
-  values: IFormValues,
-  meta: IFormMeta
-) => void;
-
 export type TStore = {
   action: TFieldAction | TFormAction;
   state: IFormState;
@@ -54,6 +49,7 @@ export interface IFields {
 
 export interface IFieldMeta {
   dirty: boolean;
+  displayName?: string;
   error?: TError;
   required?: boolean;
   destroyValueOnUnmount?: boolean;
@@ -77,6 +73,7 @@ interface FieldRegisterAction {
   name: string;
   type: typeof FieldActionTypes.register;
   meta: {
+    displayName?: string;
     required: boolean;
     defaultValue: TFieldValue;
   };
@@ -125,8 +122,12 @@ export interface IFormValues {
   [fieldName: string]: TFieldValue;
 }
 
-export interface IFormMeta {
+interface ExtraMeta {
+  [extraMeta: string]: any;
+}
+export interface IFormMeta extends ExtraMeta {
   submitting: boolean;
+  dirty?: boolean;
   errors: TError[];
 }
 

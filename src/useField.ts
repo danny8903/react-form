@@ -27,7 +27,7 @@ import { defer, of } from 'rxjs';
 
 type TFieldProps = Pick<
   IFieldMeta,
-  'defaultValue' | 'destroyValueOnUnmount' | 'required'
+  'defaultValue' | 'destroyValueOnUnmount' | 'required' | 'displayName'
 > & {
   name: string;
   validate?: TFieldValidator;
@@ -65,6 +65,7 @@ export const useField = (props: TFieldProps) => {
         name: prefixedName,
         type: FieldActionTypes.register,
         meta: {
+          displayName: props.displayName,
           required: !!props.required,
           defaultValue: props.defaultValue,
         },
@@ -113,11 +114,12 @@ export const useField = (props: TFieldProps) => {
       switchMap(({ value, meta }) =>
         defer(async () => {
           const invalidFieldError = await asyncVerifyField(
-            prefixedName,
+            meta.displayName || prefixedName,
             value,
             !!meta.required,
             props.validate
           );
+
           if (invalidFieldError) {
             throw invalidFieldError;
           }
@@ -128,16 +130,17 @@ export const useField = (props: TFieldProps) => {
               type: FieldActionTypes.clearError,
             });
           }
-        })
-      ),
-      catchError((err) => {
-        dispatch({
-          name: prefixedName,
-          type: FieldActionTypes.throwError,
-          payload: err,
-        });
-        return of(err);
-      })
+        }).pipe(
+          catchError((err) => {
+            dispatch({
+              name: prefixedName,
+              type: FieldActionTypes.throwError,
+              payload: err,
+            });
+            return of(err);
+          })
+        )
+      )
     );
 
     const storeSubscription = subscribe(store$);
@@ -160,6 +163,7 @@ export const useField = (props: TFieldProps) => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
+    path: prefixedName,
     ...fieldState,
     onChange,
   };

@@ -7,6 +7,7 @@ import {
   TFieldValue,
   TError,
   TFieldValidator,
+  IFields,
 } from './interfaces';
 
 export const asyncVerifyField = async (
@@ -42,19 +43,23 @@ export const verifyForm = (state: IFormState): IFormState | null => {
   const { meta, fields, values } = state;
 
   // check if required field is empty and update field meta error
-  const fieldPairs = Object.entries({ ...fields }).map<[string, IFieldMeta]>(
-    ([key, field]) => {
-      const error = verifyRequiredField(key, get(values, key), field.required);
+  const fieldPairs = Object.entries({ ...fields } as IFields).map<
+    [string, IFieldMeta]
+  >(([key, field]) => {
+    const error = verifyRequiredField(
+      field.displayName || key,
+      get(values, key),
+      field.required
+    );
 
-      const nextField = error ? { ...field, error } : field;
+    const nextField = error ? { ...field, error } : field;
 
-      return [key, nextField];
-    }
-  );
+    return [key, nextField];
+  });
 
   const errors = fieldPairs
-    .map(([, field]) => field.error)
-    .filter((err) => !!err) as Error[];
+    .filter(([, field]) => field.error)
+    .map(([, field]) => field.error as Error);
 
   if (errors.length === 0) {
     return null;

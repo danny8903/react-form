@@ -20,7 +20,7 @@ const reducer: TFormReducer = (action, formState) => {
   switch (action.type) {
     case FieldActionTypes.register: {
       const { fields, values, meta: formMeta } = formState;
-      const { payload, meta = {}, name } = action;
+      const { payload, meta, name } = action;
 
       return {
         fields: {

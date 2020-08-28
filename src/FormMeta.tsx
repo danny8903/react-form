@@ -8,7 +8,6 @@ import { TStore, TChildrenRender, IFormMeta } from './interfaces';
 interface IFormValuesProps {
   children: TChildrenRender<IFormMeta>;
 }
-
 export function FormMeta(props: IFormValuesProps) {
   const { subscribe } = useContext(FormContext);
 
@@ -16,9 +15,11 @@ export function FormMeta(props: IFormValuesProps) {
   useLayoutEffect(() => {
     const store$ = new Subject<TStore>();
     const formMeta$ = store$.pipe(
-      map(({ state }) => ({
-        ...state.meta,
-      })),
+      map(({ state }) => {
+        return {
+          ...state.meta,
+        };
+      }),
       distinctUntilChanged(isEqual),
       tap((meta: IFormMeta) => setFormMeta(meta))
     );

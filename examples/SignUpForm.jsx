@@ -6,13 +6,12 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import MuiTextField from '@material-ui/core/TextField';
 
-import { Form, useField } from '@danny-qu/form';
+import { Form, useField, FormMeta } from '@danny-ui/react-form';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -46,6 +45,7 @@ function TextField({
 }) {
   const { value, onChange, meta } = useField({
     name,
+    displayName: label,
     required,
     defaultValue,
     validate,
@@ -67,6 +67,21 @@ function TextField({
   );
 }
 
+function CheckboxField({ name = '', defaultValue = false }) {
+  const { value, onChange } = useField({
+    name,
+    defaultValue,
+  });
+
+  return (
+    <Checkbox
+      onChange={(ev) => onChange(ev.target.checked)}
+      checked={value}
+      color="primary"
+    />
+  );
+}
+
 export function SignUpForm() {
   const classes = useStyles();
 
@@ -81,8 +96,14 @@ export function SignUpForm() {
 
         <Form
           className={classes.form}
-          onSubmit={(value) => {
+          onSubmit={async (value) => {
+            await new Promise((res) => setTimeout(res, 100));
             window.alert(JSON.stringify(value));
+          }}
+          extendFormMeta={(state) => {
+            const { termsAndConditions } = state.values;
+            const { dirty } = state.meta;
+            return { canSubmit: !!dirty && !!termsAndConditions };
           }}
         >
           <Grid container spacing={2}>
@@ -93,7 +114,16 @@ export function SignUpForm() {
               <TextField required label="Last Name" name="lastName" />
             </Grid>
             <Grid item xs={12}>
-              <TextField required label="Email Address" name="email" />
+              <TextField
+                required
+                validate={async (value) => {
+                  await new Promise((res) => setTimeout(res, 100));
+                  const isEmailValid = /^[^@]+@[^@]+\.[^@]+$/.test(value);
+                  return !isEmailValid && new Error('Invalid Email Address');
+                }}
+                label="Email Address"
+                name="email"
+              />
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -105,22 +135,27 @@ export function SignUpForm() {
             </Grid>
             <Grid item xs={12}>
               <FormControlLabel
-                control={
-                  <Checkbox value="termsAndConditions" color="primary" />
-                }
-                label="Please confirm that you agree our our terms & conditions"
+                control={<CheckboxField name="termsAndConditions" />}
+                label="Please confirm that you agree our terms & conditions"
               />
             </Grid>
           </Grid>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            Sign Up
-          </Button>
+          <FormMeta>
+            {(meta) => {
+              return (
+                <Button
+                  type="submit"
+                  fullWidth
+                  disabled={!meta.canSubmit}
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                >
+                  Sign Up
+                </Button>
+              );
+            }}
+          </FormMeta>
           <Grid container justify="flex-end">
             <Grid item>
               <Link href="#" variant="body2">
