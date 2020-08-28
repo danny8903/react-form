@@ -1,7 +1,5 @@
 ## Introduction
 
----
-
 This React Form component helps you:
 
 - Maintain Form state
@@ -14,15 +12,11 @@ This React Form component helps you:
 
 ## Installation
 
----
-
 > npm install --save @danny-ui/react-form
 
 <br><br>
 
 ## Usage
-
----
 
 ```jsx static
 import { Form, useField } from '@danny-ui/react-form';
@@ -105,8 +99,6 @@ function TextField({ name = '', required = false, defaultValue = '' }) {
 <br><br>
 
 ## License
-
----
 
 [MIT License](http://opensource.org/licenses/mit-license.html).
 <br><br>
