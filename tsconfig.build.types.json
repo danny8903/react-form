@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": true,
+    "emitDeclarationOnly": true
+  },
+  "exclude": [
+    "node_modules",
+    "**/__tests__/**",
+    "webpack.config.ts",
+    "rollup.config.ts",
+    ".vscode",
+    "examples",
+    "styleguide"
+  ]
+}

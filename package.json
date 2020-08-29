@@ -1,8 +1,37 @@
 {
   "name": "@danny-ui/react-form",
   "version": "0.1.0",
-  "author": "Danny Qu",
+  "author": "Danny Qu (https://github.com/danny8903)",
   "license": "MIT",
+  "homepage": "http://danny-ui-form.surge.sh",
+  "keywords": [
+    "form",
+    "react",
+    "typescript"
+  ],
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "lib",
+    "es",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "yarn build:types && yarn build:rollup",
+    "build:types": "rm -rf dist && tsc --build ./tsconfig.build.types.json",
+    "build:rollup": "rm -rf lib/ && rm -rf es/ && rollup -c rollup.config.js",
+    "test": "react-scripts test --env=jest-environment-jsdom-sixteen --testMatch='**/__tests__/(*.)+test.ts?(x)'",
+    "test:jest": "jest",
+    "styleguide": "styleguidist server",
+    "styleguide:build": "styleguidist build",
+    "styleguide:deploy": "surge --project ./styleguide --domain danny-ui-form.surge.sh"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "sideEffects": false,
   "dependencies": {
     "@types/jest": "^24.0.0",
     "@types/lodash.get": "^4.4.6",
@@ -18,32 +47,7 @@
     "lodash.set": "^4.3.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1",
-    "rxjs": "^6.5.5",
-    "typescript": "~3.7.2"
-  },
-  "scripts": {
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jest-environment-jsdom-sixteen --testMatch='**/__tests__/(*.)+test.ts?(x)'",
-    "eject": "react-scripts eject",
-    "styleguide": "styleguidist server",
-    "styleguide:build": "styleguidist build",
-    "styleguide:deploy": "surge --project ./styleguide --domain danny-ui-form.surge.sh"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "rxjs": "^6.5.5"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",
@@ -56,9 +60,16 @@
     "babel-loader": "^8.1.0",
     "babel-polyfill": "^6.26.0",
     "css-loader": "^3.6.0",
+    "jest": "^26.4.2",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "react-styleguidist": "^11.0.8",
+    "rollup": "^2.26.7",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-postcss": "^3.1.6",
+    "rollup-plugin-typescript": "^1.0.1",
     "style-loader": "^1.2.1",
-    "ts-loader": "^8.0.1"
+    "ts-loader": "^8.0.1",
+    "typescript": "^4.0.2",
+    "webpack": "^4.44.1"
   }
 }
