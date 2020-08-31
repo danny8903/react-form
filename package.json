@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "author": "Danny Qu (https://github.com/danny8903)",
   "license": "MIT",
-  "homepage": "http://danny-ui-form.surge.sh",
   "keywords": [
     "form",
     "react",
@@ -22,8 +21,8 @@
     "build": "yarn build:types && yarn build:rollup",
     "build:types": "rm -rf dist && tsc --build ./tsconfig.build.types.json",
     "build:rollup": "rm -rf lib/ && rm -rf es/ && rollup -c rollup.config.js",
-    "test": "react-scripts test --env=jest-environment-jsdom-sixteen --testMatch='**/__tests__/(*.)+test.ts?(x)'",
-    "test:jest": "jest",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "styleguide": "styleguidist server",
     "styleguide:build": "styleguidist build",
     "styleguide:deploy": "surge --project ./styleguide --domain danny-ui-form.surge.sh"
@@ -31,9 +30,46 @@
   "eslintConfig": {
     "extends": "react-app"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com:danny8903/react-form.git"
+  },
+  "homepage": "git+https://github.com:danny8903/react-form.git",
+  "bugs": {
+    "url": "git+https://github.com:danny8903/react-form.git"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/**/*.d.ts"
+    ],
+    "testEnvironment": "jest-environment-jsdom-sixteen",
+    "testRegex": ".*/__tests__/.+\\.(test|spec)\\.(ts|tsx)$",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.css$": "<rootDir>/cssTransform.js"
+    },
+    "modulePaths": [
+      "<rootDir>"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "watchPlugins": [
+      "jest-watch-typeahead/filename",
+      "jest-watch-typeahead/testname"
+    ]
+  },
   "sideEffects": false,
   "dependencies": {
-    "@types/jest": "^24.0.0",
     "@types/lodash.get": "^4.4.6",
     "@types/lodash.isequal": "^4.5.5",
     "@types/lodash.omit": "^4.5.6",
@@ -53,21 +89,27 @@
     "@babel/core": "^7.10.5",
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
+    "@babel/preset-typescript": "^7.10.4",
     "@material-ui/core": "^4.11.0",
     "@testing-library/jest-dom": "^5.11.0",
     "@testing-library/react": "^10.4.4",
     "@testing-library/user-event": "^12.0.11",
+    "@types/jest": "^24.0.0",
+    "babel-jest": "^26.3.0",
     "babel-loader": "^8.1.0",
     "babel-polyfill": "^6.26.0",
     "css-loader": "^3.6.0",
     "jest": "^26.4.2",
     "jest-environment-jsdom-sixteen": "^1.0.3",
+    "jest-watch-typeahead": "^0.6.0",
+    "react-app-polyfill": "^1.0.6",
     "react-styleguidist": "^11.0.8",
     "rollup": "^2.26.7",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-postcss": "^3.1.6",
     "rollup-plugin-typescript": "^1.0.1",
     "style-loader": "^1.2.1",
+    "ts-jest": "^26.3.0",
     "ts-loader": "^8.0.1",
     "typescript": "^4.0.2",
     "webpack": "^4.44.1"

@@ -56,9 +56,11 @@ export function Form(props: IRxFormProps) {
           );
 
           const dirty = fieldMetaList.some((meta) => meta.dirty);
-          const errors = fieldMetaList
-            .filter((meta) => meta.error)
-            .map((meta) => meta.error as Error);
+          const errors = meta.errors.concat(
+            fieldMetaList
+              .filter((meta) => meta.error)
+              .map((meta) => meta.error as Error)
+          );
 
           const tempState: IFormState = {
             ...state,
@@ -127,6 +129,7 @@ export function Form(props: IRxFormProps) {
           ...formState,
           meta: {
             ...formState.meta,
+            errors: [],
             submitting: true,
           },
         };
@@ -134,6 +137,7 @@ export function Form(props: IRxFormProps) {
           ...formState,
           meta: {
             ...formState.meta,
+            errors: [],
             submitting: false,
           },
         };

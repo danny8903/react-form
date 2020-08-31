@@ -32,6 +32,7 @@ describe('test FormMeta', () => {
     );
 
     expect(formMetaCallback).toHaveBeenLastCalledWith({
+      dirty: false,
       submitting: false,
       errors: [],
     });
@@ -39,6 +40,7 @@ describe('test FormMeta', () => {
 
     userEvent.click(screen.getByTestId('submit'));
     expect(formMetaCallback).toHaveBeenLastCalledWith({
+      dirty: false,
       submitting: true,
       errors: [],
     });
@@ -47,6 +49,7 @@ describe('test FormMeta', () => {
     await waitFor(() => expect(formMetaCallback).toHaveBeenCalledTimes(3));
 
     expect(formMetaCallback).toHaveBeenLastCalledWith({
+      dirty: false,
       submitting: false,
       errors: [],
     });
