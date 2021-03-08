@@ -1,4 +1,4 @@
-import isEqual from 'lodash.isequal';
+import { isEqual } from 'lodash';
 import { useContext, useLayoutEffect, useState } from 'react';
 import { Subject } from 'rxjs';
 import { distinctUntilChanged, map, tap } from 'rxjs/operators';

@@ -1,5 +1,4 @@
-import omit from 'lodash.omit';
-import set from 'lodash.set';
+import { omit, set } from 'lodash';
 
 import {
   FieldActionTypes,

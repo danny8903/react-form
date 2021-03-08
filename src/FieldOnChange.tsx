@@ -1,7 +1,7 @@
 import { useContext, useLayoutEffect } from 'react';
 import { Subject } from 'rxjs';
 import { distinctUntilChanged, filter, map } from 'rxjs/operators';
-import isEqual from 'lodash.isequal';
+import { isEqual } from 'lodash';
 
 import { FormContext } from './FormContext';
 import {

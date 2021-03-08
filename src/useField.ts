@@ -1,6 +1,5 @@
 import { useContext, useLayoutEffect, useState } from 'react';
-import get from 'lodash.get';
-import isEqual from 'lodash.isequal';
+import { get, isEqual } from 'lodash';
 import { Subject } from 'rxjs/internal/Subject';
 import {
   map,

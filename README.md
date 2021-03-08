@@ -21,23 +21,50 @@ This React Form component helps you:
 ```jsx static
 import { Form, useField } from '@danny-ui/react-form';
 
-function TextField({ name = '', required = false, defaultValue = '' }) {
+function TextField({
+  name = '',
+  label = '',
+  required = false,
+  defaultValue = '',
+  validate,
+  type = 'text',
+}) {
   const { value, onChange, meta } = useField({
     name,
+    displayName: label,
+    validate,
     required,
     defaultValue,
   });
 
-  return <input onChange={(ev) => onChange(ev.target.value)} value={value} />;
+  return (
+    <div>
+      <label>{label}</label>
+      <input
+        onChange={(ev) => onChange(ev.target.value)}
+        value={value}
+        type={type}
+      />
+    </div>
+  );
 }
 
 <Form
-  onSubmit={(value) => {
+  onSubmit={async (value) => {
     window.alert(JSON.stringify(value));
   }}
 >
-  <TextField required label="First Name" name="firstName" />
-  <TextField required label="Last Name" name="lastName" />
+  <TextField
+    required
+    validate={async (value) => {
+      await new Promise((res) => setTimeout(res, 100));
+      const isEmailValid = /^[^@]+@[^@]+\.[^@]+$/.test(value);
+      return !isEmailValid && new Error('Invalid Email Address');
+    }}
+    label="Email Address"
+    name="email"
+  />
+  <TextField required name="password" label="Password" type="password" />
   <button type="submit">Submit</button>
 </Form>;
 ```

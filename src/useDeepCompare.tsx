@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import isEqual from 'lodash.isequal';
+import { isEqual } from 'lodash';
 
 const UNIQUE_STRING =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3IiOiJEYW5ueSJ9.xeaACuv2JPWKKhl_rmAeL72LFcZvtQ4mS0cpQs6xmH8';

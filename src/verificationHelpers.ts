@@ -1,4 +1,4 @@
-import get from 'lodash.get';
+import { get } from 'lodash';
 
 import { isEmpty, isNil } from './utils';
 import {
