@@ -50,17 +50,16 @@ export function Form(props: IRxFormProps) {
       state$.pipe(
         map((state) => {
           const { fields, meta } = state;
-
           const fieldMetaList = Object.entries(fields).map(
             (fieldPair) => fieldPair[1]
           );
 
           const dirty = fieldMetaList.some((meta) => meta.dirty);
-          const errors = meta.errors.concat(
-            fieldMetaList
-              .filter((meta) => meta.error)
-              .map((meta) => meta.error as Error)
-          );
+
+          // TODO: current fix will cause form meta error is not sync with errors from fields.
+          // Can try create custom error to distinguish field error and form error,
+          // and then concat them.
+          const { errors } = meta;
 
           const tempState: IFormState = {
             ...state,
