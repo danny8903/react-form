@@ -77,9 +77,12 @@ test('verifyForm should should update meta error', async () => {
     },
     meta: {
       submitting: false,
-      errors: [new Error('firstName is required')],
+      errors: [],
     },
   };
 
-  expect(verifyForm(initState)).toEqual(expectedResult);
+  expect(verifyForm(initState)).toEqual([
+    expectedResult,
+    [new Error('firstName is required')],
+  ]);
 });

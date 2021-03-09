@@ -57,7 +57,7 @@ describe('test form', () => {
           fname: '',
           lname: '',
         },
-        { dirty: false, errors: [], submitting: true }
+        { errors: [], submitting: true }
       );
     });
 
@@ -130,14 +130,12 @@ describe('test form', () => {
     test('failed submit should trigger error', async () => {
       expect(formMetaCallback).toHaveBeenCalledTimes(1);
       expect(formMetaCallback).toHaveBeenLastCalledWith({
-        dirty: false,
         submitting: false,
         errors: [],
       });
       userEvent.click(screen.getByTestId('submit'));
       expect(formMetaCallback).toHaveBeenCalledTimes(2);
       expect(formMetaCallback).toHaveBeenLastCalledWith({
-        dirty: false,
         submitting: true,
         errors: [],
       });
@@ -145,7 +143,6 @@ describe('test form', () => {
       await waitFor(() => expect(formMetaCallback).toHaveBeenCalledTimes(3));
 
       expect(formMetaCallback).toHaveBeenLastCalledWith({
-        dirty: false,
         submitting: false,
         errors: [new Error('404')],
       });
@@ -153,13 +150,11 @@ describe('test form', () => {
 
       userEvent.click(screen.getByTestId('submit'));
       expect(formMetaCallback).toHaveBeenLastCalledWith({
-        dirty: false,
         submitting: true,
         errors: [],
       });
       await waitFor(() => expect(formMetaCallback).toHaveBeenCalledTimes(5));
       expect(formMetaCallback).toHaveBeenLastCalledWith({
-        dirty: false,
         submitting: false,
         errors: [new Error('404')],
       });
@@ -201,14 +196,12 @@ describe('test form', () => {
     test('failed before submit should trigger error', async () => {
       expect(formMetaCallback).toHaveBeenCalledTimes(1);
       expect(formMetaCallback).toHaveBeenLastCalledWith({
-        dirty: false,
         submitting: false,
         errors: [],
       });
       userEvent.click(screen.getByTestId('submit'));
       expect(formMetaCallback).toHaveBeenCalledTimes(2);
       expect(formMetaCallback).toHaveBeenLastCalledWith({
-        dirty: false,
         submitting: true,
         errors: [],
       });
@@ -216,7 +209,6 @@ describe('test form', () => {
       await waitFor(() => expect(formMetaCallback).toHaveBeenCalledTimes(3));
 
       expect(formMetaCallback).toHaveBeenLastCalledWith({
-        dirty: false,
         submitting: false,
         errors: [new Error('failed before submit')],
       });

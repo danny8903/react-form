@@ -54,18 +54,13 @@ export function Form(props: IRxFormProps) {
             (fieldPair) => fieldPair[1]
           );
 
-          const dirty = fieldMetaList.some((meta) => meta.dirty);
-
-          // TODO: current fix will cause form meta error is not sync with errors from fields.
-          // Can try create custom error to distinguish field error and form error,
-          // and then concat them.
+          // Form error and fields errors are now separated, form error should not try to collect fields error
           const { errors } = meta;
 
           const tempState: IFormState = {
             ...state,
             meta: {
               ...meta,
-              dirty,
               errors,
             },
           };
@@ -79,7 +74,6 @@ export function Form(props: IRxFormProps) {
             meta: {
               ...meta,
               ...extraMeta,
-              dirty,
               errors,
             },
           };
@@ -111,15 +105,12 @@ export function Form(props: IRxFormProps) {
     const submitHandler$ = submitSubject.pipe(
       exhaustMap(() => {
         const formState = store.getState();
-        const formStateWithError = verifyForm(formState);
+        const [formStateWithError, fieldsErrors] = verifyForm(formState);
         if (formStateWithError) {
           return of(formStateWithError).pipe(
             tap(() => {
               props.failed &&
-                props.failed(
-                  formStateWithError.meta.errors,
-                  formStateWithError.values
-                );
+                props.failed(fieldsErrors, formStateWithError.values);
             })
           );
         }

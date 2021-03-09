@@ -39,7 +39,7 @@ export const verifyRequiredField = (
   }
 };
 
-export const verifyForm = (state: IFormState): IFormState | null => {
+export const verifyForm = (state: IFormState): [IFormState | null, Error[]] => {
   const { meta, fields, values } = state;
 
   // check if required field is empty and update field meta error
@@ -62,17 +62,14 @@ export const verifyForm = (state: IFormState): IFormState | null => {
     .map(([, field]) => field.error as Error);
 
   if (errors.length === 0) {
-    return null;
+    return [null, []];
   }
 
   const formStateWithError: IFormState = {
     fields: Object.fromEntries(fieldPairs),
     values,
-    meta: {
-      ...meta,
-      errors,
-    },
+    meta,
   };
 
-  return formStateWithError;
+  return [formStateWithError, errors];
 };
