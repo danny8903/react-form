@@ -17,13 +17,7 @@ module.exports = {
       format: 'es',
     },
   ],
-  external: [
-    'tslib',
-    // @ts-ignore
-    ...Object.keys(process.binding('natives')),
-    ...Object.keys(pkg.dependencies || {}),
-    ...Object.keys(pkg.peerDependencies || {}),
-  ],
+  external: [...Object.keys(pkg.peerDependencies || {})],
   plugins: [
     rollupTypeScript({
       target: 'es5',

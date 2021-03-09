@@ -12,6 +12,12 @@ This React Form component helps you:
 
 ## Installation
 
+Install lodash (">=4.17.15") and rxjs (">=6.5.x) if you don't have it.
+
+> npm install --save lodash rxjs
+
+Install react-form
+
 > npm install --save @danny-ui/react-form
 
 <br><br>
