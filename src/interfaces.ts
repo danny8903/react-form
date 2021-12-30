@@ -1,6 +1,4 @@
-import { Observer } from 'rxjs/internal/types';
-import { Observable } from 'rxjs/internal/Observable';
-import { Subscription } from 'rxjs/internal/Subscription';
+import { Observer, Observable, Subscription } from 'rxjs';
 
 export { Observable, Subscription };
 

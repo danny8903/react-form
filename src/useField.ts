@@ -1,6 +1,5 @@
 import { useContext, useLayoutEffect, useState } from 'react';
 import { get, isEqual } from 'lodash';
-import { Subject } from 'rxjs/internal/Subject';
 import {
   map,
   tap,
@@ -22,7 +21,7 @@ import {
   TStore,
 } from './interfaces';
 import useDeepCompare from './useDeepCompare';
-import { defer, of } from 'rxjs';
+import { defer, of, Subject } from 'rxjs';
 
 type TFieldProps = Pick<
   IFieldMeta,

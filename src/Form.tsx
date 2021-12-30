@@ -1,7 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
-import { Subject, merge, of } from 'rxjs';
+import { Subject, merge, of, Observable } from 'rxjs';
 import { exhaustMap, catchError, tap, mapTo, map } from 'rxjs/operators';
-import { Observable } from 'rxjs/internal/Observable';
 
 import { FormProvider, FORM_INIT_STATE } from './FormContext';
 

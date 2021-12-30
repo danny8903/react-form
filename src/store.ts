@@ -1,4 +1,4 @@
-import { Subject, BehaviorSubject } from 'rxjs';
+import { Subject, BehaviorSubject, Observable, Observer } from 'rxjs';
 import {
   withLatestFrom,
   map,
@@ -6,8 +6,6 @@ import {
   pairwise,
   shareReplay,
 } from 'rxjs/operators';
-import { Observable } from 'rxjs/internal/Observable';
-import { Observer } from 'rxjs/internal/types';
 
 import { TReducer, IAction } from './interfaces';
 
